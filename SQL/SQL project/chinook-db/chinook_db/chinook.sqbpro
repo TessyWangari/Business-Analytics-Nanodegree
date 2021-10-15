@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?><sqlb_project><db path="C:/Users/tmuiruri001/Documents/Business Analytics Nanodegree/SQL project/chinook-db/chinook_db/chinook.db" readonly="0" foreign_keys="1" case_sensitive_like="0" temp_store="0" wal_autocheckpoint="1000" synchronous="2"/><attached/><window><main_tabs open="structure browser pragmas query" current="3"/></window><tab_structure><column_width id="0" width="300"/><column_width id="1" width="0"/><column_width id="2" width="125"/><column_width id="3" width="5283"/><column_width id="4" width="0"/><expanded_item id="0" parent="1"/><expanded_item id="1" parent="1"/><expanded_item id="2" parent="1"/><expanded_item id="3" parent="1"/></tab_structure><tab_browse><current_table name="4,5:mainAlbum"/><default_encoding codec=""/><browse_table_settings><table schema="main" name="Album" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk="_rowid_"><sort/><column_widths><column index="1" value="84"/><column index="2" value="300"/><column index="3" value="76"/></column_widths><filter_values/><conditional_formats/><row_id_formats/><display_formats/><hidden_columns/><plot_y_axes/><global_filter/></table></browse_table_settings></tab_browse><tab_sql><sql name="SQL 1">
+SELECT Customer.Country,SUM(Invoice.Total) Total
+FROM Customer
+JOIN Invoice
+ON Customer.CustomerId = Invoice.CustomerId
+GROUP BY Customer.Country
+ORDER BY Total DESC</sql><sql name="Q1"> SELECT
+    *
+  FROM (SELECT
+    g.name AS genre,
+    COUNT(*) AS units_sold
+  FROM track t
+  JOIN genre g
+    ON t.genreid = g.genreid
+  JOIN invoiceline il
+    ON il.trackid = t.trackid
+  GROUP BY 1
+  ORDER BY 2 DESC) sub
+  LIMIT 10
+ ;</sql><sql name="Q2">SELECT ar.Name AS ArtistName, COUNT(*) AS Albums
+FROM Album AS al
+JOIN Artist as ar
+ON ar.ArtistId = al.ArtistId
+GROUP BY ArtistName
+HAVING Albums &gt;10
+ORDER BY Albums DESC</sql><sql name="q3">SELECT
+  e.FirstName || &quot; &quot; || e.LastName AS sales_agent,
+  STRFTIME('%Y', i.InvoiceDate) AS year,
+  COUNT(*) AS sales
+FROM Employee e
+JOIN Customer c
+  ON e.EmployeeId = c.SupportRepId
+JOIN Invoice i
+  ON c.CustomerId = i.CustomerId
+WHERE e.Title = &quot;Sales Support Agent&quot;
+GROUP BY 1,
+         2
+ORDER BY 1,
+				 2;</sql><sql name="SQL 5">WITH best_sales_agent
+AS (SELECT
+  e.FirstName,
+  e.LastName,
+  CASE
+    WHEN COUNT(*) IS NULL
+    THEN &quot;0&quot;
+    ELSE COUNT(*)
+  END AS assists
+FROM Employee e
+JOIN Customer c
+  ON e.EmployeeId = c.SupportRepId
+WHERE e.Title = &quot;Sales Support Agent&quot;
+GROUP BY 1,
+         2
+ORDER BY 3 DESC
+LIMIT 1)
+
+SELECT
+  e.FirstName,
+  e.LastName,
+  STRFTIME('%Y', i.InvoiceDate) AS year,
+  COUNT(*) AS sales
+FROM Employee e
+JOIN Customer c
+  ON e.EmployeeId = c.SupportRepId
+JOIN Invoice i
+  ON c.CustomerId = i.CustomerId
+JOIN best_sales_agent bsa
+  ON e.FirstName = bsa.FirstName
+  AND e.LastName = bsa.LastName
+GROUP BY 1,
+         2,
+         3
+ORDER BY 3,
+         1,
+         2;
+</sql><current_tab id="4"/></tab_sql></sqlb_project>

@@ -1,0 +1,90 @@
+/* Question 1 */
+#Q1-What are the top 10 genres by the units sold?
+-----------------------------------------------------------------------
+ SELECT *
+
+  FROM (SELECT
+    g.name AS genre,
+    COUNT(*) AS units_sold
+  FROM track t
+  JOIN genre g
+    ON t.genreid = g.genreid
+  JOIN invoiceline il
+    ON il.trackid = t.trackid
+  GROUP BY 1
+  ORDER BY 2 DESC) sub
+  LIMIT 10;
+-----------------------------------------------------------------------
+
+/*Question 2 */
+#Q2 – Which artists have more than 10 albums?
+-----------------------------------------------------------------------
+SELECT ar.Name AS ArtistName, COUNT(*) AS Albums
+FROM Album AS al
+JOIN Artist as ar
+ON ar.ArtistId = al.ArtistId
+GROUP BY ArtistName
+HAVING Albums >10
+ORDER BY Albums DESC;
+-----------------------------------------------------------------------
+/*Question 3 */
+#Q3-How do the sales agents compare across the years?
+-----------------------------------------------------------------------
+SELECT
+  e.FirstName || " " || e.LastName AS sales_agent,
+  STRFTIME('%Y', i.InvoiceDate) AS year,
+  COUNT(*) AS sales
+FROM Employee e
+JOIN Customer c
+  ON e.EmployeeId = c.SupportRepId
+JOIN Invoice i
+  ON c.CustomerId = i.CustomerId
+WHERE e.Title = "Sales Support Agent"
+GROUP BY 1,
+         2
+ORDER BY 1,
+				 2;
+-----------------------------------------------------------------------				 
+/*Question 4 */
+Q4 What is the performance of the best sales agent?
+-----------------------------------------------------------------------
+WITH best_sales_agent
+AS (SELECT
+  e.FirstName,
+  e.LastName,
+  CASE
+    WHEN COUNT(*) IS NULL
+    THEN "0"
+    ELSE COUNT(*)
+  END AS assists
+FROM Employee e
+JOIN Customer c
+  ON e.EmployeeId = c.SupportRepId
+WHERE e.Title = "Sales Support Agent"
+GROUP BY 1,
+         2
+ORDER BY 3 DESC
+LIMIT 1)
+
+SELECT
+  e.FirstName,
+  e.LastName,
+  STRFTIME('%Y', i.InvoiceDate) AS year,
+  COUNT(*) AS sales
+FROM Employee e
+JOIN Customer c
+  ON e.EmployeeId = c.SupportRepId
+JOIN Invoice i
+  ON c.CustomerId = i.CustomerId
+JOIN best_sales_agent bsa
+  ON e.FirstName = bsa.FirstName
+  AND e.LastName = bsa.LastName
+GROUP BY 1,
+         2,
+         3
+ORDER BY 3,
+         1,
+         2;
+
+
+-----------------------------------------------------------------------
